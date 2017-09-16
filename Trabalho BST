@@ -1,0 +1,184 @@
+/* Aluno:  Maikon Douglas de Souza Pereira*/
+
+#include <stdio.h>
+
+typedef struct busca{
+int d;
+struct busca *esquerda,*direita;
+}busca;
+
+busca *nN(int d){
+	busca *n = malloc(sizeof(busca));
+	n ->d=d;
+	n ->direita=NULL;
+	n ->esquerda=NULL;
+	return n;
+}
+void insercao(busca **root){
+	int d;
+	printf("\nDIGITE O NUMERO: ");
+	scanf("%d", &d);
+	if(*root==NULL){
+		*root=nN(d);
+	}else{
+		busca *a=malloc(sizeof(busca));
+		for(a=*root;a!=NULL;){
+			if(a->d>=d){
+				if(a->esquerda!=NULL)
+					a=a->esquerda;
+				else{
+					a->esquerda=nN(d);
+					break;
+				}
+			}else{
+				if(a->direita!=NULL)
+					a=a->direita;
+				else{
+					a->direita=nN(d);
+					break;
+				}
+			}
+		}
+	}
+}
+void in(busca *rz){
+	if(rz == NULL)
+		return;
+	in(rz -> esquerda);
+	printf("%d\n",rz -> d);
+	in(rz -> direita);
+}
+
+void busc(busca *rz,int d, busca **ac){
+	if(rz != NULL){
+		if(rz -> d == d){
+			*ac = rz;
+			printf("O NUMERO %d ESTA  %d\n", rz -> d,&rz);
+			return;
+		}
+		busc(rz -> esquerda,d,ac);
+		busc(rz->direita,d,ac);
+}
+}
+
+void pr(busca *rz){
+	if(rz == NULL)
+		return;
+	printf("%d\n",rz->d);
+	pr(rz -> esquerda);
+	pr(rz -> direita);
+}
+
+void post(busca *rz){
+	if(rz == NULL)
+		return;
+	post(rz -> esquerda);
+	post(rz -> direita);
+	printf("%d\n",rz -> d);
+}
+void buscaminimo(busca *s, busca **ac){
+	busca *ac2 = *ac;
+	if(s != NULL){
+		if(ac2->d > s->d){
+			*ac=s;
+			return;
+		}
+		buscaminimo(s -> esquerda,ac);
+		buscaminimo(s -> direita,ac);
+	}
+}
+
+
+busca *dele(busca *rz, int d){
+	if(rz == NULL)
+		return rz;
+	else if(rz -> d > d)
+		rz -> esquerda = dele(rz -> esquerda,d);
+	else if(rz -> d < d)
+		rz -> direita=dele(rz -> direita,d);
+	else{
+			if(rz->esquerda == NULL && rz->direita==NULL){
+				free(rz);
+				rz=NULL;
+			}else if(rz->esquerda==NULL){
+				busca *a=rz;
+				rz=rz->direita;
+				free(a);
+			}else{
+				busca *a=rz->direita;
+				buscaminimo(rz->direita, &a);
+				rz->d=a->d;
+				rz->direita=dele(rz->direita,a->d);
+			}
+	}
+	return rz;
+}
+int main(){
+	busca *root = NULL;
+	busca *a = NULL;
+	int E;
+
+	do {
+		
+		printf("\n    #### MENU INICIAL #### \n");
+		printf("-/-/-/- 1 - PARA INSERIR  -/-/-/-\n");
+		printf("-/-/-/- 2 - PARA DELETAR -/-/-/-\n");
+		printf("-/-/-/- 3 - PARA EXIBIR -- PRE ORDEM -/-/-/-\n");
+		printf("-/-/-/- 4 - PARA EXIBIR -- IN ORDER -/-/-/-\n");
+		printf("-/-/-/- 5 - PARA EXIBIR -- POS ORDEM-/-/-/-\n");
+		printf("-/-/-/- 6 - PARA BUSCAR -/-/-/-\n");
+		printf("-/-/-/- 0 - SAIR -/-/-/-\n");
+		printf("SELECIONE SUA OPCAO:  ");
+		scanf("%d", &E);
+printf("\n");
+	
+		a=NULL;
+		switch (E) {
+			case 1:
+				insercao(&root);
+				break;
+
+			case 2:
+				if(root==NULL)
+					printf("\n VAZIA \n");
+				else{
+					printf("\n DIGITE O NUMERO PARA DELETAR: ");
+					int delet;
+					scanf("%d",&delet);
+					dele(root,delet);
+				}
+				break;
+			case 3:
+				if(root==NULL)
+					printf("\n VAZIA\n");
+				else
+					pr(root);
+				break;
+			case 4:
+				if(root==NULL)
+					printf("\n ARVORE VAZIA\n");
+				else
+			 		in(root);
+				break;
+			case 5:
+				if(root==NULL)
+					printf("\n VAZIA \n");
+				else
+				post(root);
+				break;
+			default:
+				break;
+			case 6:
+				printf("DIGITE PRA BUSCAR: ");
+				int b;
+				scanf("%d",&b );
+				busc(root,b,&a);
+				if(a==NULL)
+					printf("NAO TEM\n");
+				break;
+		
+		}
+	} while(E!=0);
+
+	return 0;
+}
