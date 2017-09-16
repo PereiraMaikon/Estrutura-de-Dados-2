@@ -36,10 +36,10 @@ void insercao(busca **root){
 				else{
 					a->direita=nN(d);
 					break;
-				}
 			}
 		}
 	}
+}
 }
 void in(busca *rz){
 	if(rz == NULL)
