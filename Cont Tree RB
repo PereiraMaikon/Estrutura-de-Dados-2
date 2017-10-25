@@ -1,0 +1,46 @@
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#define RED false
+#define BLACK true
+
+typedef struct node{
+    int key;
+    node * left, * right, *p;
+    bool c;
+}node;
+
+
+typedef struct rbtree{
+    node * root;
+    node * nil;
+}rbtree;
+
+
+int menuprincipal(int menu){
+	system("clear");
+	printf("*** MENU PRINCIPAL:***\n\n");
+	printf("1--INSERIR\n");
+	printf("2--DELETAR\n");
+	printf("3--BUSCAR\n");
+	printf("4--IMPRIMIR IN_ORDER\n");
+	printf("5--IMPRIMIR POS_ORDER\n");
+	printf("6--IMPRIMIR PRE_ORDER\n");
+	printf("0--SAIR\n");
+	scanf("%d",&menu);
+	getchar();
+	return menu;
+}
+
+rbtree *tree_liga();
+void inser(rbtree * T, int u );
+void insert_fix_up(rbtree* T,node* z);
+void left_rotate(rbtree* T, node* x);
+void right_rotate(rbtree* T, node* w);
+void preorder(node* r, node* Nil);
+int menuprincipal(int menu);
+node * buscar (rbtree* T, node * r, int key);
+node* MN(rbtree* T, node* no);
+node* sucessor(rbtree* T,node* n);
+void delet_fix_up(rbtree* T,node* x);
+node* del(rbtree* T, int key);
