@@ -1,0 +1,353 @@
+/* Aluno:  Maikon Douglas de Souza Pereira
+Trabalho TREE BLACK RED
+*/
+#include "func.cpp"
+
+rbtree *tree_liga (){
+	rbtree * n = (rbtree *)malloc(sizeof(rbtree));
+	n->nil = (node *)malloc(sizeof(node));	
+	n->nil->p = NULL;
+	n->nil->left = NULL;
+	n->nil->right = NULL;
+	n->nil->c = BLACK;
+	
+	n->root = n->nil;
+	return n;
+} 
+void inser (rbtree * T, int u){
+	node * n = (node *)malloc(sizeof(node));
+	n->p = n->left = n->right = T->nil;
+	n->key = u;
+	n->c = RED;
+
+	node * y;
+	node * x;
+	
+	y = T->nil;
+	x = T->root;
+
+
+	while ( x != T->nil ){
+		y = x;
+		if ( u < x->key )
+			x = x->left;
+		else x = x->right;
+	}
+
+	n->p = y;
+
+	if(y == T->nil)
+		T->root = n;
+	else if (u < y->key)
+		y->left = n;
+	else y->right = n;
+
+	insert_fix_up(T,n);	
+	
+}
+
+void insert_fix_up(rbtree* T,node* z){
+	node* y;
+
+	while(z->p->c == RED){
+		if(z->p == z->p->p->left){
+			y = z->p->p->right;
+			if(y->c == RED){
+				z->p->c = BLACK;
+				y->c = BLACK;
+				z->p->p->c = RED;
+				z = z->p->p;
+				}else{
+					 if(z == z->p->right){
+						z = z->p;
+						left_rotate(T,z);
+						z->p->c = BLACK;
+						z->p->p->c = RED;
+						right_rotate(T,z->p->p);
+					}else{
+						z = z->p;
+						right_rotate(T,z);
+					}
+				}
+		}else{
+			y = z->p->p->left;
+			if(y->c == RED){
+				z->p->c = BLACK;
+				y->c = BLACK;
+				z->p->p->c = RED;
+				z = z->p->p;
+			}else{ 
+				if(z == z->p->left){
+					z = z->p;
+					right_rotate(T,z);
+					z->p->c = BLACK;
+					z->p->p->c = RED;
+					left_rotate(T,z->p->p);
+				}else{
+					z = z->p;
+					left_rotate(T,z);
+				}
+
+			}
+		}
+	}
+	T->root->c = BLACK;
+}
+void left_rotate(rbtree* T, node* x){
+	node* y;
+
+	y = x->right;
+	x->right = y->left;
+	if(y->left != T->nil)
+		y->left->p = x;
+	y->p = x->p;
+	if(x->p == T->nil)
+		T->root = y;
+	else if(x == x->p->left)
+		x->p->left = y;
+	else
+		x->p->right = y;
+	y->left = x;
+	x->p = y;
+}
+
+void right_rotate(rbtree* T, node* w){
+	node* y;
+
+	y = w->left;
+	w->left = y->right;
+	if(y->right != T->nil)
+		y->right->p = w;
+	y->p = w->p;
+	if(w->p == T->nil)
+		T->root = y;
+	else if(w == w->p->right)
+		w->p->right = y;
+	else
+		w->p->left = y;
+	y->right = w;
+	w->p = y;
+}
+
+void preorder(node* r, node* Nil){
+	if(r != Nil){
+		if(r->c == RED)
+			printf("RED\n");
+		else 
+			printf("BLACK\n");
+		printf("%d\n\n",r->key);
+		preorder(r->left,Nil);
+		preorder(r->right,Nil);
+	}
+}
+
+void inorder(node* r, node* nil){
+	if(r != nil){
+		inorder(r->left,nil);
+		if(r->c == RED)
+			printf("RED\n");
+		else 
+			printf("BLACK\n");
+		printf("%d\n\n",r->key);
+		inorder(r->right,nil);
+	}
+}
+
+void posorder(node* r, node* nil){
+	if(r != nil){
+		posorder(r->left,nil);
+		posorder(r->right,nil);
+		if(r->c == RED)
+			printf("RED\n");
+		else 
+			printf("BLACK\n");
+		printf("%d\n\n",r->key);
+	}
+}
+
+node* del(rbtree* T, int key){
+	node* z = buscar(T, T->root, key);
+	node* y ,* x;
+	if(z == T->nil){
+		return z;
+	}
+	if(z->left == T->nil || z->right == T->nil)
+		y = z;
+		else
+			y = sucessor(T,z);
+	if(y->left != T->nil)
+		x = y->left;
+		else
+			x = y->right;
+	x->p = y->p;
+	if(y->p == T->nil)
+		T->root = x;
+		else if(y == y->p->left)
+			y->p->left = x;
+		else
+			y->p->right = x;
+	if(y != z)
+		z->key = y->key;
+	if(y->c == BLACK)
+		delet_fix_up(T,x);
+	return z;
+}
+
+void delet_fix_up(rbtree* T,node* x){
+	node* w;
+
+	while(x != T->root && x->c == BLACK){
+		if(x == x->p->left){
+			w = x->p->right;
+			if(w->c == RED){
+				w->c = BLACK;
+				x->p->c = RED;
+				left_rotate(T,x->p);
+				w = x->p->right;
+			}
+			if(w->left->c == BLACK && w->right->c == BLACK){
+				w->c = RED;
+				x = x->p;
+				}else if(w->right->c == BLACK){
+					w->left->c = BLACK;
+					w->c = RED;
+					right_rotate(T,w);
+					w = x->p->right;
+				}else{
+				w->c = w->p->c;
+				x->p->c = BLACK;
+				w->right->c = BLACK;
+				left_rotate(T,x->p);
+				x = T->root;
+			}
+		}else{
+			w = x->p->left;
+			if(w->c == RED){
+				w->c = BLACK;
+				x->p->c = RED;
+				right_rotate(T,x->p);
+				w = x->p->left;
+			}
+			if(w->right->c == BLACK && w->left->c == BLACK){
+				w->c = RED;
+				x = x->p;
+				}else if(w->left->c == BLACK){
+					w->right->c = BLACK;
+					w->c = RED;
+					left_rotate(T,w);
+					w = x->p->left;
+				}else{
+				w->c = w->p->c;
+				x->p->c = BLACK;
+				w->left->c = BLACK;
+				right_rotate(T,x->p);
+				x = T->root;
+			}
+		}
+	}
+	x->c = BLACK;
+}
+
+node* sucessor(rbtree* T,node* n){
+	if(n->right != T->nil)
+		return MN(T,n->right);
+	node* parent = n->p;
+	while(parent != T->nil && n == parent->right){
+		n = parent;
+		parent = parent->p;
+	}
+	return parent;
+}
+
+node* MN(rbtree* T, node* no){
+	node* aux = no;
+	while(aux->left != T->nil)
+		aux = aux->left;
+	return aux;
+}
+
+node * buscar (rbtree* T, node * r, int key){
+	if(r == T->nil || r->key == key ) return r;				
+
+	if(key <= r->key) return buscar (T,r->left, key);
+	
+	return buscar (T,r->right, key);
+
+}
+
+int main(){
+
+	rbtree* root = tree_liga();
+
+	int n;
+	int menu = 10;
+
+	while(menu != 0){
+		menu = menuprincipal(menu);
+		switch(menu){
+			case 1:
+				printf("\nDIGITE OS NUMEROS:\n");
+				while(scanf("%d", &n)){
+					inser(root, n);
+				}
+				getchar();
+				printf("\nNUMEROS INSERIDOS!\nPressione ENTER para continuar...\n");
+				getchar();
+				getchar();
+				break;
+			
+			case 2:
+				printf("\nDIGITE UM NUMERO PARA SER DELETADO:\n");
+				scanf("%d",&n);
+				getchar();
+				if(del(root,n) == root->nil)
+					printf("NAO EXISTE!!!\n");
+				else
+					printf("NUEMRO DELETADO \n");
+					printf("Pressione ENTER para continuar...\n");
+					getchar();
+				break;
+			case 3:
+				printf("\nDIGITE UM NUMERO A SER BUSCADO:\n");
+				scanf("%d",&n);
+				getchar();
+				if(buscar(root,root->root,n) != root->nil)
+					printf("ESTA NA ARVORE\n");
+				else
+					printf("NAO ENCONTRADO!!!\n");
+				printf("\nPressione ENTER para continuar...");
+				getchar();
+				break;
+			case 4:
+				printf("\n(IN ORDER) : \n");
+				inorder(root->root,root->nil);
+				printf("\nPressione ENTER para continuar...");
+				getchar();
+				break;
+			
+			case 5:
+				printf("\n (POS ORDER) : \n");
+				posorder(root->root,root->nil);
+				printf("\nPressione ENTER para continuar...");
+				getchar();
+				break;
+			case 6:
+				printf("\n(PRE ORDER) : \n");
+				preorder(root->root,root->nil);
+				printf("\nPressione ENTER para continuar...");
+				getchar();
+				break;
+			case 0:
+				break;
+			default:
+				break;
+		}
+	}
+
+
+	
+
+
+
+	return 0;
+}
