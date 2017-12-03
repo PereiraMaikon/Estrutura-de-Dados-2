@@ -104,12 +104,11 @@ int BTreeRemove(BTree * tree, int key) {
 }
 
 int main(int argc, char **a){
-  /*Variavies auxiliares*/
   BTree * btree;
   FILE * base;
   int option, chave, result, procura;
    
-  /*Abre base de dados*/
+
   base = fopen("base.d", "r");
   
   /* Cria a estrutura da arvore. */
