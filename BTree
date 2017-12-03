@@ -1,0 +1,158 @@
+/* Arvore B
+ Maikon Douglas de Souza Pereira*/
+ 
+#include <stdio.h>
+#include <stdlib.h>
+#ifndef BTREE_H_
+#define BTREE_H_
+
+typedef struct {
+  int root;
+  int tBase;
+} BTree;
+
+void  mRoot();
+BTree * mTree();
+void loadIndex(BTree *, FILE *);
+int BTreeInsert(BTree * tree, int key);
+int BTreeRemove(BTree * tree, int key);
+
+void mRoot() {
+  int i;
+  BTNode *root;
+  
+  root = mNode();
+  root->id = 0;
+  root->numChaves = 0; 
+  root->leaf = TRUE;
+  root->left = -1;
+  root->right = -1;
+
+  for (i = 0; i < B_ORDER; i++) {
+    root->chaves[i] = -1;
+    root->filhos[i] = -1;
+  }
+  root->filhos[i] = -1; 
+	
+  writeNode(root);
+  free(root);
+
+}
+
+BTree * mTree() {
+  BTree *tree = (BTree *)malloc(sizeof(BTree));
+  tree->root = 0;
+  tree->tBase = 0;
+
+  return tree;  
+}
+
+int BTreeInsert(BTree * tree, int key) {
+  int result;
+  pk temp;
+	
+  temp.key = key;
+  temp.pointer = (tree->tBase)++;
+	
+  result = insert(&temp, tree->root);
+
+  if (result == OVERFLOW) {
+		
+    printf(stderr, "Root OverFlow\n");
+		 
+    rootOverflow();
+  }
+
+  return result;
+	
+}
+
+void loadIndex(BTree *tree, FILE *base) {
+  int temp;
+  int key, nrr = 0;
+
+  BTNode *root = mNode();
+	
+  temp = readNode(root, tree->root);
+	
+  if (!temp) { 
+
+    mRoot();
+		
+    while(!feof(base)) {
+      fscanf(base, "%d", &key);
+      BTreeInsert(tree, key);
+      nrr++;
+    }
+  }
+
+  free(root);
+}
+
+
+int BTreeRemove(BTree * tree, int key) {
+  int retorno;
+
+  retorno = removeKey(key, tree->root);
+  
+  if (retorno == UNDERFLOW) { 
+    rootUnderFlow();
+  }
+
+  return retorno;
+	
+}
+
+int main(int argc, char **a){
+  /*Variavies auxiliares*/
+  BTree * btree;
+  FILE * base;
+  int option, chave, result, procura;
+   
+  /*Abre base de dados*/
+  base = fopen("base.d", "r");
+  
+  /* Cria a estrutura da arvore. */
+  btree = mTree();
+  
+  /*Carrega root da arvore Caso nao exista, cria a partir da base.*/
+  loadIndex(btree, base);
+
+  do {
+    printf("1 - Insercao\n");
+    printf("2 - Busca\n");
+    printf("3 - Remocao\n");
+    printf("0 - Sair\n");
+    printf("Digite uma opção: ");
+    scanf("%d", &opcao);
+
+    switch(opcao) {
+    case 1:
+      printf("Digite a chave a ser inserida: ");
+      scanf("%d", &chave);
+      result = BTreeInsert(btree, chave);
+
+      if (resultado) printf("Insercao bem sucedida!\n");
+      else printf("Insercao mal sucedida. Verifique repeticao!\n");
+      break;
+    case 2: 
+      printf("Digite a o numero a ser buscado: ");
+      scanf("%i", &procura);
+      break;
+    case 3:
+      printf("Digite a chave a ser removida: ");
+      scanf("%d", &chave);
+      resultado = BTreeRemove(btree, chave);
+
+      if (resultado) printf("Remocao bem sucedida!\n");
+      else printf("Remocao mal sucedida.\n");
+      break;
+    case 0:
+      break;
+    }
+  } while(opcao);
+
+  printf("Acabou!\n");
+  return 0;
+}
+
